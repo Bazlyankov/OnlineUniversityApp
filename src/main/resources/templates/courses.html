@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/commons::head}">
+
+
+  <title>Online University Courses</title>
+
+
+</head>
+<style th:replace="~{fragments/commons::style}"></style>
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+  <h1>Online University Courses</h1>
+  <table>
+    <thead>
+    <tr>
+      <th>Course Name</th>
+      <th>Course Description</th>
+      <th>See Students</th>
+      <th sec:authorize="hasRole('ROLE_TEACHER')">Add Resource</th>
+      <th sec:authorize="hasRole('ROLE_TEACHER')">Add Student to Course</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="course : ${courses}">
+      <td th:text="${course.name}"></td>
+      <td th:text="${course.description}"></td>
+      <td>
+        <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-primary">See Students</a>
+      </td>
+      <td sec:authorize="hasRole('ROLE_TEACHER')">
+        <a th:href="@{/courses/{id}/resources/add(id=${course.id})}" class="btn btn-primary">Add Resource</a>
+      </td>
+      <td sec:authorize="hasRole('ROLE_TEACHER')">
+        <a th:href="@{/courses/{courseId}/add(courseId=${course.id})}" class="btn btn-primary">Add Student to Course</a>
+      </td>
+
+
+
+    </tr>
+    </tbody>
+  </table>
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/courses/add}" class="btn btn-primary mt-3 mb-3">Add New Course</a>
+</div>
+
+</body>
+
+</html>

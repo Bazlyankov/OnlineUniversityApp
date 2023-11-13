@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/commons::head}"></head>
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+
+<main>
+    <div class="container bg-blur rounded mt-3 mb-3 p-2">
+        <img src="/images/graduation-cap.png">
+        <h1>Welcome to the Online University App!</h1>
+        <hr class="my-3 bg-white w-50"/>
+
+        <p class="h4">
+            Our online university system gives you the chance to register as a student and take part in ou diverse and fascinating range of courses.
+            Whether you are interested in hardcore STEM sciences, avant-garde art studies, or socially-oriented studies, our course will offer you high-quality education.
+<br>
+            Each student shall receive three tasks for each course he has enrolled in and will need a minimal average grade of 3 to progress to the next semester.
+            </p>
+        <hr class="my-3 bg-white w-75"/>
+
+        <h3>
+            <a class="text-primary" th:href="@{/login}">Login</a>
+            if you have an account or
+            <a class="text-primary" th:href="@{/register}">Register</a>
+            now and check our deals.
+        </h3>
+    </div>
+</main>
+<footer th:replace="~{fragments/commons::footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{fragments/commons::head}">
+    <meta charset="UTF-8">
+    <title>Student enrollment system</title>
+
+</head>
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+  <div class="container bg-blur rounded mt-3 mb-3 p-2">
+    <h1> Student enrollment system</h1>
+    <hr>
+    <h2> Add student</h2>
+
+    <form action="#"
+          th:action="@{/students/add}"
+          th:object = "${student}"
+          method="post">
+      <input type="text" th:field = "*{username}"
+             placeholder="Enter username"
+             class="form-control mb-4 col-4">
+      <input type="text" th:field = "*{firstName}"
+             placeholder="Enter first name"
+             class="form-control mb-4 col-4">
+      <input type="text" th:field = "*{lastName}"
+             placeholder="Enter last name"
+             class="form-control mb-4 col-4">
+      <input type="text" th:field = "*{email}"
+             placeholder="Enter email"
+             class="form-control mb-4 col-4">
+      <input type="text" th:field = "*{password}"
+             placeholder="Enter password"
+             class="form-control mb-4 col-4">
+
+      <input type="text" th:field = "*{confirmPassword}"
+             placeholder="Confirm password"
+             class="form-control mb-4 col-4">
+      <button type="submit" class="btn btn-info col-2">Enter student</button>
+    </form>
+
+  </div>
+</body>
+</html>

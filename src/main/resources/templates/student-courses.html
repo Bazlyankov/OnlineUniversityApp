@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+
+<head th:replace="~{fragments/commons::head}">
+  <title>Students in Course</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+  <h1  th:text="${'Courses atennded by ' + student.firstName + ' ' + student.lastName}"></h1>
+
+  <hr>
+
+  <table>
+    <thead>
+    <tr>
+      <th>Course name</th>
+      <th>Course description</th>
+      <th>Teacher</th>
+    </tr>
+    </thead>
+    <hr>
+    <tbody>
+    <tr th:each="course : ${student.courses}">
+      <td th:text="${course.name}"></td>
+      <td th:text="${course.description}"></td>
+      <td th:text="${course.teacher.firstName} + ' ' + ${course.teacher.lastName}"></td>
+      <td >
+        <a class="btn btn-primary"  th:href="@{/courses/{courseId}/(courseId=${course.id})}" >See course info</a>
+      </td>
+      <td >
+        <a class="btn btn-primary"  th:href="@{/courses/{courseId}/add-student/{studentId}(studentId=${id},courseId=${course.id})}" >See course info</a>
+      </td>
+
+
+
+    </tr>
+    </tbody>
+  </table>
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/courses}" class="btn btn-primary">Back to Courses</a>
+  <a th:href="@{/students}" class="btn btn-primary mt-3 mb-3">Back to Students</a>
+
+
+
+</div>
+</body>
+
+</html>

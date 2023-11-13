@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/commons::head}"></head>
+<body>
+
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+    <h1>Your courses</h1>
+    <hr>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Course name</th>
+            <th>Course description</th>
+            <th>Teacher</th>
+        </tr>
+        </thead>
+        <hr>
+        <tbody>
+        <tr th:each="course : ${courses}">
+            <td th:text="${course.name}"></td>
+            <td th:text="${course.description}"></td>
+            <td th:text="${course.teacher.firstName}  + ' ' + ${course.teacher.lastName}"></td>
+            <td >
+                <a class="btn btn-primary"  th:href="@{/courses/{courseId}(courseId=${course.id})}" >See course info</a>
+            </td>
+
+
+
+
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+    <h1>Your tasks</h1>
+    <hr>
+
+    <table >
+        <thead>
+        <tr>
+            <th>Course name</th>
+            <th>Description</th>
+            <th sec:authorize="hasRole('ROLE_STUDENT')">Add File</th>
+            <th >Download File</th>
+            <th>Completed</th>
+            <th sec:authorize="hasRole('ROLE_TEACHER')">Select Grade</th>
+            <th>Grade</th>
+        </tr>
+        </thead>
+        <hr>
+        <tbody>
+        <tr th:each="task : ${tasks}" class="tasks-row">
+            <td th:text="${task.courseName}"></td>
+            <td th:text="${task.description}"></td>
+            <td sec:authorize="hasRole('ROLE_STUDENT')">
+                <form th:action="@{/students/{studentId}/tasks/{taskId}/upload(studentId=${user.id}, taskId=${task.id})}" method="post" enctype="multipart/form-data">
+                    <input type="file" id="solutionFile" name="solutionFile" accept=".nb, .pdf, .doc, .docx, .txt">
+                    <button type="submit">Upload</button>
+                </form>
+            </td>
+            <td >
+                <a th:if="${task.taskSolution} != null" th:href="${task.taskSolution}" download>Download File</a>
+                <p th:unless="${task.taskSolution} != null" >No file available</p>
+            </td>
+            <td>
+                <div th:if="${task.isCompleted}" class="completed-label">
+                    <span class="green-label">Completed</span>
+                </div>
+
+                <div th:unless="${task.isCompleted}" class="incomplete-label">
+                    <span class="red-label">Incomplete</span>
+                </div>
+
+
+            </td>
+            <td sec:authorize="hasRole('ROLE_TEACHER')">
+                <form th:action="@{/students/{studentId}/tasks/{taskId}/add-grade(studentId=${user.id}, taskId=${task.id})}" method="post">
+                    <label for="gradeValue">Select Grade:</label>
+                    <select id="gradeValue" name="gradeValue">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <button type="submit">Submit</button>
+                </form>
+            </td>
+            <td>
+                <div th:if="${task.isCompleted}" class="incomplete-label">
+                    <div th:unless="${task.isGraded}" class="incomplete-label">
+                        <span class="red-label">No grade available</span>
+                    </div>
+                    <div th:if="${task.isGraded}" >
+                        <span th:if="${task.gradeValue}>=3" class="completed-label" th:text="${task.gradeValue}">No grade available</span>
+                        <span th:unless="${task.gradeValue}>=3" class="incomplete-label" th:text="${task.gradeValue}">No grade available</span>
+                    </div>
+                </div>
+            </td>
+
+
+
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+</body>
+</html>

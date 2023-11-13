@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head th:replace="~{fragments/commons::head}"></head>
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<h1 class="text-center mt-2"><span class="badge badge-pill badge-dark">Create a New Course</span></h1>
+  <hr>
+
+  <form class="mx-auto w-25 bg-blur rounded" action="#"
+        th:action="@{/courses/add}"
+        th:object = "${course}"
+        method="post">
+    <div class="label-holder textCol d-flex justify-content-center">
+      <label class="h4 mb-2 text-white">Course name</label>
+    </div>
+    <div class="text-center">
+      <input type="text" th:field = "*{name}"
+             placeholder="Enter course name"
+             class="form-control mb-4 col-12 mx-auto ">
+    </div>
+
+    <div class="label-holder textCol d-flex justify-content-center">
+      <label class="h4 mb-2 text-white">Course description</label>
+    </div>
+    <div class="text-center">
+
+      <input type="text"  th:field = "*{description}"
+             placeholder="Enter course description"
+             class="form-control mb-4 col-16  mx-auto ">
+    </div>
+
+
+  <button type="submit" class="btn btn-primary  mt-3 mb-3">Add Course</button>
+</form>
+
+</body>
+
+</html>

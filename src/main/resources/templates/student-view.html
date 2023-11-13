@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/commons::head}">
+  <title>Student Profile</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<div class="container bg-blur rounded mt-3 mb-3 p-2 mx-auto">
+
+
+
+<h1>Student Profile</h1>
+
+<div class="profile-info" align="center">
+
+  <h2 th:text="'Name ' + ${student.firstName} + ' ' + ${student.lastName}">Student Name </h2>
+  <p th:text="'Username: ' + ${student.username}">Username: </p>
+  <p th:text="'Email: ' + ${student.email}">Email: </p>
+  <h3>Courses:</h3>
+  <ul>
+    <li th:each="course : ${student.courses}" th:text="${course.name}"></li>
+  </ul>
+  <p sec:authorize="hasRole('ROLE_TEACHER')" th:if="${student.averageGrade} < 3" th:text="'Average grade: ' + ${student.averageGrade}" class="incomplete-label">Average Grade: </p>
+  <p sec:authorize="hasRole('ROLE_TEACHER')" th:unless="${student.averageGrade} < 3" th:text="'Average grade: ' + ${student.averageGrade}" class="completed-label">Average Grade: </p>
+  <a  th:href="@{/students/{id}/courses(id=${student.id})}" class="task-button mb-3 mt-3">View Courses Full info</a>
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/students/{id}/tasks(id=${student.id})}" class="task-button mb-3 mt-3">View Tasks</a>
+</div>
+  <a sec:authorize="hasRole('ROLE_TEACHER')"  style="color: white; background-color: red; border-color: red" th:href="@{/students/{id}/make-teacher(id=${student.id})}" class="btn btn-primary mb-3 mt-3">Make Teacher</a>
+
+
+</div>
+</body>
+</html>

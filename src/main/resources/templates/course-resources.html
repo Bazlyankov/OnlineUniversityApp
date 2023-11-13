@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/commons::head}"></head>
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+  <h1>Course Resources</h1>
+
+
+  <h2 th:text="${course.name}">Course Name: </h2>
+
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/courses/{id}/resources/add(id=${course.id})}" class="btn btn-primary">Add New Resource</a>
+
+
+      <div th:each="resource : ${course.courseResources}" class="resource-div">
+        <p th:text="${resource.title}" class="resource-title">Resource Name></p>
+        <p th:text="${resource.description}">Resource Description></p>
+        <hr>
+        <div class="mt-3 mb-3">
+          <iframe width="560" height="315" th:src="${'https://www.youtube.com/embed/' + resource.videoUrl}">
+          </iframe>
+        </div>
+        <form sec:authorize="hasRole('ROLE_TEACHER')" th:action="@{/resources/{courseId}/delete/{resourceId}(courseId=${course.id},resourceId=${resource.id})}" th:method="post">
+
+          <button  type="submit" class="mt-3 mb-3 btn btn-primary ">Delete resource</button>
+        </form>
+        <hr>
+      </div>
+
+</div>
+</body>
+</html>

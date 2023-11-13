@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/commons::head}"></head>
+
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+<h1 th:text="${course.name}"></h1>
+  <hr>
+  <h2 th:text="${course.description}"></h2>
+  <hr>
+<h3>Students in this course:</h3>
+
+  <table>
+    <thead>
+    <tr>
+      <th>Teacher Name</th>
+      <th>Teacher Email</th>
+      <th>View teacher info</th>
+    </tr>
+    </thead>
+    <hr>
+    <tbody>
+    <tr th:each="teacher : ${teachers}">
+      <td th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></td>
+      <td th:text="${teacher.email}"></td>
+      <td >
+        <a th:href="@{/students/{id}(id=${teacher.id})}" class="btn btn-primary">View full info</a>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+<table>
+  <thead>
+  <tr>
+    <th>Student Name</th>
+    <th>Student Email</th>
+    <th>View student info</th>
+    <th sec:authorize="hasRole('ROLE_TEACHER')" >Remove student</th>
+  </tr>
+  </thead>
+  <hr>
+  <tbody>
+  <tr th:each="student : ${students}">
+    <td th:text="${student.firstName} + ' ' + ${student.lastName}"></td>
+    <td th:text="${student.email}"></td>
+    <td >
+      <a th:href="@{/students/{id}(id=${student.id})}" class="btn btn-primary">View full info</a>
+    </td>
+    <td sec:authorize="hasRole('ROLE_TEACHER')" >
+      <form th:action="@{/courses/{courseId}/delete/{studentId}(courseId=${course.id},studentId=${student.id})}" method="post">
+        <button type="submit" class="btn btn-primary">Delete student</button>
+      </form>
+    </td>
+
+  </tr>
+  </tbody>
+</table>
+  <a th:href="@{/courses}" class="btn btn-primary mb-3 mt-3">Back to Courses</a>
+
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/courses/{id}/add(id=${course.id})}" class="btn btn-primary  mb-3 mt-3">Add student to course</a>
+  <a th:href="@{/resources/{id}(id=${course.id})}" class="btn btn-primary  mb-3 mt-3">View resources</a>
+  <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/courses/{id}/resources/add(id=${course.id})}" class="btn btn-primary  mb-3 mt-3">Add resource to course</a>
+
+</div>
+</body>
+
+</html>

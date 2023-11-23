@@ -11,6 +11,7 @@ import java.io.File;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "tasks")
 public class Task extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -26,10 +27,10 @@ public class Task extends BaseEntity {
     private String taskSolution;
 
     @Column(name = "is_completed")
-    private Boolean isCompleted;
+    private Boolean isCompleted =false;
 
     @Column(name = "is_graded")
-    private Boolean isGraded;
+    private Boolean isGraded = false;
 
     public Task(String description, Course course ) {
 

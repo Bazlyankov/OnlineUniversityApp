@@ -13,14 +13,14 @@ import java.util.Set;
 public class CustomUserDetails extends User {
 
     private String firstName;
-    private Set<Course> courses;
+    private Set<Enrollment> enrollments;
     private Set<Task> tasks;
 
     public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities,
-                             String firstName, Set<Course> courses, Set<Task> tasks) {
+                             String firstName, Set<Enrollment> enrollments, Set<Task> tasks) {
         super(username, password, authorities);
         this.firstName = firstName;
-        this.courses = courses;
+        this.enrollments = enrollments;
         this.tasks = tasks;
     }
 
@@ -33,12 +33,12 @@ public class CustomUserDetails extends User {
         return this;
     }
 
-    public Set<Course> getCourses() {
-        return courses;
+    public Set<Enrollment> getEnrollments() {
+        return enrollments;
     }
 
-    public CustomUserDetails setCourses(Set<Course> courses) {
-        this.courses = courses;
+    public CustomUserDetails setCourses(Set<Enrollment> enrollments) {
+        this.enrollments = enrollments;
         return this;
     }
 

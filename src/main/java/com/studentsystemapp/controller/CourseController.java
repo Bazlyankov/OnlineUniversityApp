@@ -2,22 +2,19 @@ package com.studentsystemapp.controller;
 
 import com.studentsystemapp.model.binding.CourseAddBindingModel;
 import com.studentsystemapp.model.binding.CourseResourceAddBindingModel;
-import com.studentsystemapp.model.entity.Course;
 import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.model.view.CourseViewModel;
+import com.studentsystemapp.model.view.EnrollmentViewModel;
 import com.studentsystemapp.service.CourseService;
 import com.studentsystemapp.service.ResourceService;
 import com.studentsystemapp.service.StudentService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/courses")
@@ -38,7 +35,7 @@ public class CourseController {
     @Transactional
     @GetMapping("") public String courses(Model model) {
 
-        model.addAttribute("allStudents", studentService.getAll());
+        model.addAttribute("allStudents", studentService.getAllStudents());
         model.addAttribute("courses", courseService.getAll());
 
         return "courses";
@@ -110,10 +107,12 @@ public class CourseController {
 
 
         model.addAttribute("course", course);
-        model.addAttribute("students", course.getStudents().stream()
-                .filter(s -> s.getRole().equals(UserRolesEnum.STUDENT)));
-        model.addAttribute("teachers", course.getStudents().stream()
-                .filter(s -> s.getRole().equals(UserRolesEnum.TEACHER)));
+        model.addAttribute("students", course.getEnrollments().stream()
+                .map(EnrollmentViewModel::getUser)
+                .filter(student -> student.getRole().equals(UserRolesEnum.STUDENT)).toList());
+        model.addAttribute("teachers", course.getEnrollments().stream()
+                .map(EnrollmentViewModel::getUser)
+                .filter(teachers -> teachers.getRole().equals(UserRolesEnum.TEACHER)).toList());
 
 
         return "course-students";

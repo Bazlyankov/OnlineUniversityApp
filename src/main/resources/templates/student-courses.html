@@ -21,19 +21,20 @@
       <th>Course name</th>
       <th>Course description</th>
       <th>Teacher</th>
+      <th>Full Info</th>
+      <th>Add Student</th>
     </tr>
     </thead>
-    <hr>
     <tbody>
-    <tr th:each="course : ${student.courses}">
-      <td th:text="${course.name}"></td>
-      <td th:text="${course.description}"></td>
-      <td th:text="${course.teacher.firstName} + ' ' + ${course.teacher.lastName}"></td>
+    <tr th:each="enrollment : ${student.enrollments}">
+      <td th:text="${enrollment.course.name}"></td>
+      <td th:text="${enrollment.course.description}"></td>
+      <td th:text="${enrollment.course.teacher.firstName} + ' ' + ${enrollment.course.teacher.lastName}"></td>
       <td >
-        <a class="btn btn-primary"  th:href="@{/courses/{courseId}/(courseId=${course.id})}" >See course info</a>
+        <a class="btn btn-primary"  th:href="@{/courses/{courseId}(courseId=${enrollment.course.id})}" >See course info</a>
       </td>
       <td >
-        <a class="btn btn-primary"  th:href="@{/courses/{courseId}/add-student/{studentId}(studentId=${id},courseId=${course.id})}" >See course info</a>
+        <a class="btn btn-primary"  th:href="@{/courses/{courseId}/add-student(courseId=${enrollment.course.id})}" >Add Student to Course</a>
       </td>
 
 

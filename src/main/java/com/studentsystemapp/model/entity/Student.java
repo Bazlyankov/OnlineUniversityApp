@@ -17,7 +17,4 @@ import java.util.Set;
 public class Student extends BaseUser {
 
 
-    @OneToMany(fetch = FetchType.EAGER)
-    private Set<Grade> grades;
-
 }

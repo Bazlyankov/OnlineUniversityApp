@@ -21,12 +21,12 @@
         </thead>
         <hr>
         <tbody>
-        <tr th:each="course : ${courses}">
-            <td th:text="${course.name}"></td>
-            <td th:text="${course.description}"></td>
-            <td th:text="${course.teacher.firstName}  + ' ' + ${course.teacher.lastName}"></td>
+        <tr th:each="enrollment : ${enrollments}">
+            <td th:text="${enrollment.course.name}"></td>
+            <td th:text="${enrollment.course.description}"></td>
+            <td th:text="${enrollment.course.teacher.firstName}  + ' ' + ${enrollment.course.teacher.lastName}"></td>
             <td >
-                <a class="btn btn-primary"  th:href="@{/courses/{courseId}(courseId=${course.id})}" >See course info</a>
+                <a class="btn btn-primary"  th:href="@{/courses/{courseId}(courseId=${enrollment.course.id})}" >See course info</a>
             </td>
 
 
@@ -111,6 +111,41 @@
         </tbody>
     </table>
 
+
+
+</div>
+<div class="container bg-blur rounded mt-3 mb-3 p-2">
+    <h1>Your enquiries</h1>
+    <hr>
+    <table th:each="enquiry : ${enquiries}">
+        <thead >
+        <tr>
+            <th>To Teacher</th>
+            <th>Question</th>
+            <th>Status</th>
+            <th>Answer</th>
+            <th sec:authorize="hasRole('ROLE_TEACHER')">Respond</th>
+        </tr>
+        </thead>
+        <hr>
+        <tbody>
+        <tr >
+
+            <td th:text="${enquiry.teacher().firstName} + ' ' + ${enquiry.teacher().lastName}"></td>
+            <td th:text="${enquiry.question}"></td>
+
+            <td th:if="${enquiry.isOpen()}" class="incomplete-label" >Open</td>
+            <td th:unless="${enquiry.isOpen()}" class="completed-label" >Resolved</td>
+            <td th:if="${enquiry.isOpen()}"  class="incomplete-label">No response available</td>
+            <td th:unless="${enquiry.isOpen()}" th:text="${enquiry.response}"></td>
+            <td sec:authorize="hasRole('ROLE_TEACHER')" >
+                <a class="btn btn-primary" th:href="@{/enquiries/{id}/respond(id=${enquiry.id})}" >Respond</a>
+            </td>
+
+
+        </tr>
+        </tbody>
+    </table>
 </div>
 
 

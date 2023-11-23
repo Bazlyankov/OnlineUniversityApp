@@ -12,12 +12,4 @@ import java.util.Set;
 @Setter
 public class Teacher extends BaseUser {
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "teachers_courses",
-            joinColumns = { @JoinColumn(name = "teacher_id") },
-            inverseJoinColumns = { @JoinColumn(name = "course_id") }
-    )
-    private Set<Course> courses;
-
 }

@@ -1,19 +1,17 @@
 package com.studentsystemapp.controller;
 
+import com.cloudinary.Cloudinary;
 import com.studentsystemapp.model.binding.TaskAddBindingModel;
 import com.studentsystemapp.model.entity.Task;
 import com.studentsystemapp.model.view.StudentViewModel;
 import com.studentsystemapp.model.view.TaskViewModel;
-import com.studentsystemapp.service.CourseService;
 import com.studentsystemapp.service.StudentService;
 import com.studentsystemapp.service.TaskService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.cloudinary.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,17 +22,13 @@ public class TaskController {
 
     private final StudentService studentService;
     private final ModelMapper modelMapper;
-    private final CourseService courseService;
     private final TaskService taskService;
-    private final Cloudinary cloudinary;
 
 
-    public TaskController(StudentService studentService, ModelMapper modelMapper, CourseService courseService, TaskService taskService, Cloudinary cloudinary) {
+    public TaskController(StudentService studentService, ModelMapper modelMapper, TaskService taskService) {
         this.studentService = studentService;
         this.modelMapper = modelMapper;
-        this.courseService = courseService;
         this.taskService = taskService;
-        this.cloudinary = cloudinary;
     }
 
     @GetMapping("{id}/tasks")
@@ -106,6 +100,8 @@ public class TaskController {
 
         return "redirect:/home";
     }
+
+
 
     @PostMapping("/{studentId}/tasks/{taskId}//upload")
     public String handleFileUpload(@PathVariable("taskId") Long taskId, @RequestParam("file") MultipartFile file) {

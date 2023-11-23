@@ -104,3 +104,18 @@ footer {
     margin-top: 100px;
     margin-bottom: 100px;
 }
+.profile-picture {
+    width: 200px; /* Set width as needed */
+    height: auto; /* Auto adjust height according to aspect ratio */
+}
+
+.picture-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.picture-form .btn {
+    margin-top: 10px; /* Adjust this value as needed */
+}

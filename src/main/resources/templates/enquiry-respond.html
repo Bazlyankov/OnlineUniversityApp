@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/commons::head}"></head>
+
+<body>
+<header th:replace="~{fragments/commons::nav}"></header>
+<style th:replace="~{fragments/commons::style}"></style>
+<h1 class="text-center mt-2"><span class="badge badge-pill badge-dark">Respond to Enquiry</span></h1>
+<hr>
+
+<form class="mx-auto w-50 bg-blur rounded" action="#" th:object="${enquiry}" th:action="@{/enquiries/{id}/respond(id=${enquiry.id})}" method="post">
+  <div class="label-holder textCol d-flex justify-content-center">
+    <label class="h4 mb-2 text-white" th:text="'Question: ' + ${enquiry.question}"></label>
+  </div>
+
+  <div class="label-holder textCol d-flex justify-content-center">
+    <label class="h4 mb-2 text-white">Response</label>
+  </div>
+  <div class="text-center">
+    <textarea type="text" th:field = "*{response}"
+           placeholder="Enter your response"
+              class="form-control mb-4 col-12 mx-auto "></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary mt-3 mb-3">Submit Response</button>
+</form>
+
+</body>
+
+</html>

@@ -9,10 +9,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<BaseUser, Long> {
 
-    public boolean deleteByUsername(String username);
+    public int deleteByUsername(String username);
     public Optional<BaseUser> getByUsername(String username);
 
-    public List<BaseUser> getAllByCoursesContaining(Course course);
 
     public Optional<BaseUser> findByUsername(String username);
 

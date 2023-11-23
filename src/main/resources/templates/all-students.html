@@ -8,10 +8,10 @@
 <header th:replace="~{fragments/commons::nav}"></header>
 <style th:replace="~{fragments/commons::style}"></style>
 <div class="container bg-blur rounded mt-3 mb-3 p-2">
-<h1 >List of students in the university</h1>
+<h1 >Members of the university</h1>
 
   <hr>
-
+  <h2 >Teachers </h2>
   <table>
     <thead>
     <tr>
@@ -20,7 +20,6 @@
       <th>View full info</th>
     </tr>
     </thead>
-    <hr>
     <tbody>
     <tr th:each="teacher : ${teachers}">
       <td th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></td>
@@ -32,8 +31,9 @@
     </tr>
     </tbody>
   </table>
+<hr>
 
-
+  <h2 >Students </h2>
 <table>
   <thead>
   <tr>
@@ -43,7 +43,6 @@
     <th th:if="${#authorization.expression('hasRole(''ROLE_TEACHER'')')}">Give teacher role</th>
   </tr>
   </thead>
-  <hr>
   <tbody>
   <tr th:each="student : ${students}">
     <td th:text="${student.firstName} + ' ' + ${student.lastName}"></td>

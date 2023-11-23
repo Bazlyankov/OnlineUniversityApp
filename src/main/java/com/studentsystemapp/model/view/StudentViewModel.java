@@ -18,30 +18,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class StudentViewModel {
-
-    private Long id;
-
-    private String username;
-
-    private String firstName;
-
-    private UserRolesEnum role;
+public class StudentViewModel extends UserViewModel {
 
 
-    private String lastName;
-    private String email;
-    private List<Course> courses;
-
-
-    private List<Grade> grades;
-
-
-    private List<Task> tasks;
-
-    public StudentViewModel(BaseUser s) {
-
-    }
 
     public BigDecimal getAverageGrade() {
         if(tasks == null) {
@@ -57,6 +36,10 @@ public class StudentViewModel {
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(BigDecimal.valueOf(gradedTasks.size()),2);
+    }
+
+    public boolean isStudent() {
+        return this.getRole().equals(UserRolesEnum.STUDENT);
     }
 
 }

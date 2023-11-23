@@ -1,9 +1,6 @@
 package com.studentsystemapp.model.view;
-import com.studentsystemapp.model.entity.Course;
-
 import com.studentsystemapp.model.entity.BaseUser;
-import com.studentsystemapp.model.entity.Student;
-import com.studentsystemapp.model.entity.Teacher;
+import com.studentsystemapp.model.enums.UserRolesEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,15 +15,19 @@ public class CourseViewModel {
 
     private Long id;
 
-    private BaseUser teacher;
-
-    private Set<BaseUser> students;
+    private Set<EnrollmentViewModel> enrollments;
 
 
     private String name;
 
 
     private String description;
+
+    public UserViewModel getTeacher() {
+        return enrollments.stream().map(e -> e.getUser())
+                .filter(u -> u.getRole().equals(UserRolesEnum.TEACHER))
+                .limit(1L).toList().get(0);
+    }
 
 
 }

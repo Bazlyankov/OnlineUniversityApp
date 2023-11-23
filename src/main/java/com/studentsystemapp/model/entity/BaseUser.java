@@ -3,12 +3,14 @@ package com.studentsystemapp.model.entity;
 import com.studentsystemapp.model.enums.UserRolesEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,18 +40,23 @@ public class BaseUser extends BaseEntity {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRolesEnum role;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "students_courses",
-            joinColumns = { @JoinColumn(name = "student_id") },
-            inverseJoinColumns = { @JoinColumn(name = "course_id") }
-    )
-    private Set<Course> courses;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "user")
+    private Set<Enrollment> enrollments = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Task> tasks;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private Set<Task> tasks = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private Set<Grade> grades;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private Set<Enquiry> enquiries;
+
+    @Column
+    private String profilePicURL = "/images/blank-profile-picture-973460_1280.webp";
 
 
 }

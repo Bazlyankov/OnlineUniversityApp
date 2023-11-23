@@ -4,12 +4,10 @@ package com.studentsystemapp.controller;
 
 
 import com.studentsystemapp.model.entity.BaseUser;
+import com.studentsystemapp.model.view.EnquiryViewModel;
+import com.studentsystemapp.model.view.EnrollmentViewModel;
 import com.studentsystemapp.model.view.TaskViewModel;
-import com.studentsystemapp.model.view.CourseViewModel;
-import com.studentsystemapp.service.CourseService;
-import com.studentsystemapp.service.StudentService;
-import com.studentsystemapp.service.TaskService;
-import com.studentsystemapp.service.UserService;
+import com.studentsystemapp.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -25,12 +23,14 @@ public class HomeController {
     private final CourseService courseService;
     private final TaskService taskService;
     private final UserService userService;
+    private final EnquiryService enquiryService;
 
 
-    public HomeController(CourseService courseService, TaskService taskService, UserService userService) {
+    public HomeController(CourseService courseService, TaskService taskService, UserService userService, EnquiryService enquiryService) {
         this.courseService = courseService;
         this.taskService = taskService;
         this.userService = userService;
+        this.enquiryService = enquiryService;
     }
 
 
@@ -47,12 +47,14 @@ public class HomeController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Set<TaskViewModel> tasks = taskService.getTasksByUsername( authentication.getName());
-        Set<CourseViewModel> courses = courseService.getCoursesByUsername( authentication.getName());
+        Set<EnrollmentViewModel> enrollments = courseService.getEnrollmentsByUsername( authentication.getName());
+        Set<EnquiryViewModel> enquiries = enquiryService.getEnquiriesForUser( authentication.getName());
         BaseUser user = userService.getByUsername(authentication.getName());
 
         model.addAttribute("tasks", tasks);
         model.addAttribute("user", user);
-        model.addAttribute("courses", courses);
+        model.addAttribute("enquiries", enquiries);
+        model.addAttribute("enrollments", enrollments);
 
         return "home";
     }

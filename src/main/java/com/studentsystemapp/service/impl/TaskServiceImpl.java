@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.NotActiveException;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,10 +50,22 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public void addTask(Long id, TaskAddBindingModel taskAddBindingModel) {
 
+        Long courseId = taskAddBindingModel.getCourseId();
+        Optional<Course> optionalCourse = courseRepository.findById(courseId);
+
+        if (optionalCourse.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+
+
         Task task = modelMapper.map(taskAddBindingModel, Task.class);
-        task.setCourse(courseRepository.findById(taskAddBindingModel.getCourseId()).get());
+        task.setCourse(optionalCourse.get());
         //TODO: handle  missing student
-        BaseUser student = userRepository.findById(id).get();
+        Optional<BaseUser> optionalBaseUser = userRepository.findById(id);
+        if (optionalBaseUser.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        BaseUser student = optionalBaseUser.get();
 
         student.getTasks().add(task);
         BaseUser teacher = task.getCourse().getTeacher();
@@ -69,8 +83,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> optionalTask = taskRepository.findById(id);
 
         if (optionalTask.isEmpty()) {
-            //TODO: handle error
-            return null;
+            throw new NoSuchElementException();
         }
 
         return optionalTask.get();
@@ -85,8 +98,12 @@ public class TaskServiceImpl implements TaskService {
                 "public_id", "task" + taskId + "solution.nb"
                 ,"resource_type", "auto"));
 
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isEmpty()) {
+            throw  new NotActiveException();
+        }
 
-        Task task = taskRepository.findById(taskId).get();
+        Task task = optionalTask.get();
         task.setIsCompleted(true);
 
         task.setTaskSolution((String) cloudinaryResponse.get("url"));
@@ -117,16 +134,20 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.saveAndFlush(task);
         userRepository.saveAndFlush(student);
 
-        System.out.println("");
+        System.out.println();
 
     }
 
     @Override
     public Set<TaskViewModel> getTasksByUsername(String username) {
 
+        Optional<BaseUser> optionalBaseUser = userRepository.findByUsername(username);
+        if (optionalBaseUser.isEmpty()) {
+            throw new NoSuchElementException();
+        }
 
 
-        return userRepository.findByUsername(username).get().getTasks()
+        return optionalBaseUser.get().getTasks()
                 .stream().map(t -> modelMapper.map(t, TaskViewModel.class))
                 .collect(Collectors.toSet());
     }

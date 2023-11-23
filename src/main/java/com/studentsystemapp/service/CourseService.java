@@ -4,6 +4,8 @@ import com.studentsystemapp.model.binding.CourseResourceAddBindingModel;
 import com.studentsystemapp.model.entity.Course;
 import com.studentsystemapp.model.entity.CourseResource;
 import com.studentsystemapp.model.view.CourseViewModel;
+import com.studentsystemapp.model.view.EnrollmentViewModel;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +28,15 @@ public boolean remove(Long courseId, Long studentId);
 
     void addStudent(Long id, String username);
 
+    @Transactional
+    void addStudent(String courseName, String username);
+
     void addResourceToCourse(Long id, CourseResourceAddBindingModel resourceAddBindingModel);
+
+    @Transactional
+    void addResourceToCourse(String courseName, CourseResourceAddBindingModel resourceAddBindingModel);
 
     Optional<Course> findById(Long courseId);
 
-    Set<CourseViewModel> getCoursesByUsername(String name);
+    Set<EnrollmentViewModel> getEnrollmentsByUsername(String name);
 }

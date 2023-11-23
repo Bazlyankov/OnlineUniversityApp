@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-public class DictionaryApplication {
+public class OnlineUniversityApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DictionaryApplication.class, args);
+        SpringApplication.run(OnlineUniversityApplication.class, args);
     }
 }

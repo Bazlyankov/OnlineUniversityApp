@@ -1,5 +1,7 @@
 package com.studentsystemapp.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.studentsystemapp.model.binding.StudentRegisterBindingModel;
 import com.studentsystemapp.model.entity.*;
 import com.studentsystemapp.model.enums.UserRolesEnum;
@@ -9,8 +11,13 @@ import com.studentsystemapp.service.StudentService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.NotActiveException;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,20 +27,23 @@ public class StudentServiceImpl implements StudentService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final Cloudinary cloudinary;
 
-    public StudentServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
+    public StudentServiceImpl(UserRepository userRepository, ModelMapper modelMapper, Cloudinary cloudinary) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.cloudinary = cloudinary;
     }
 
     @Override
-    public boolean remove(String username) {
+    public int remove(String username) {
         return userRepository.deleteByUsername(username);
     }
 
 
 
     @Override
+    @Transactional
     public boolean add(StudentRegisterBindingModel studentRegisterBindingModel) {
         Optional<BaseUser> optionalStudent = userRepository.getByUsername(
                 studentRegisterBindingModel.getUsername());
@@ -43,14 +53,16 @@ public class StudentServiceImpl implements StudentService {
             return false;
         }
 
+        BaseUser baseUser = modelMapper.map(studentRegisterBindingModel, BaseUser.class);
+        baseUser.setRole(UserRolesEnum.STUDENT);
 
-        userRepository.saveAndFlush(optionalStudent.get());
+        userRepository.save(baseUser);
 
         return true;
     }
 
     @Override
-    public List<BaseUser> getAll() {
+    public List<BaseUser> getAllStudents() {
         return userRepository.findAll()
                 .stream()
                 .filter(u -> u.getRole() == UserRolesEnum.STUDENT)
@@ -59,24 +71,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<BaseUser> getAllByCourse(Course course) {
-        return userRepository.getAllByCoursesContaining(course);
+        return userRepository.findAll().stream()
+                .filter(u ->  u.getEnrollments().stream()
+                        .filter(e -> e.getCourse().equals(course)).toList()
+                        .size() > 0).collect(Collectors.toList());
     }
 
-    @Override
-    public void addGrade(Long studentId, Grade grade) {
 
-    }
 
     @Override
     public StudentViewModel getById(Long id) {
         Optional<BaseUser> optionalStudent = userRepository.findById(id);
 
         if (optionalStudent.isEmpty()) {
-            return null;
+            throw new NoSuchElementException();
         }
 
-        StudentViewModel studentViewModel = modelMapper.map(optionalStudent.get(), StudentViewModel.class);
-        return studentViewModel;
+        return modelMapper.map(optionalStudent.get(), StudentViewModel.class);
     }
 
     @Override
@@ -90,6 +101,28 @@ public class StudentServiceImpl implements StudentService {
         BaseUser student = optionalStudent.get();
         student.setRole(UserRolesEnum.TEACHER);
         userRepository.saveAndFlush(student);
+
+    }
+
+    @Override
+    @Transactional
+    public void uploadPicture(MultipartFile file, Long studentId) throws IOException {
+
+
+            Map<?, ?> cloudinaryResponse = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "public_id", "Student" + studentId + "profilePic.jpg"
+                    ,"resource_type", "auto"));
+
+            Optional<BaseUser> optionalBaseUser = userRepository.findById(studentId);
+            if (optionalBaseUser.isEmpty()) {
+                throw  new NotActiveException();
+            }
+
+            BaseUser user = optionalBaseUser.get();
+
+            user.setProfilePicURL((String) cloudinaryResponse.get("url"));
+            userRepository.saveAndFlush(user);
+
 
     }
 

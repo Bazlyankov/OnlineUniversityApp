@@ -14,16 +14,11 @@ import java.math.BigDecimal;
 @Entity
 public class Grade extends BaseEntity {
 
-
-
     @ManyToOne(fetch = FetchType.EAGER)
     private BaseUser student;
 
     @Column
     private BigDecimal value;
-
-
-
 
     public Grade(BigDecimal value, BaseUser student) {
         super();

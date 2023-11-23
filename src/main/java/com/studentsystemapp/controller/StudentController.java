@@ -2,17 +2,21 @@ package com.studentsystemapp.controller;
 
 import com.studentsystemapp.model.binding.StudentRegisterBindingModel;
 import com.studentsystemapp.model.entity.BaseUser;
+import com.studentsystemapp.model.view.CourseViewModel;
+import com.studentsystemapp.model.view.EnrollmentViewModel;
 import com.studentsystemapp.model.view.StudentViewModel;
-import com.studentsystemapp.service.CourseService;
 import com.studentsystemapp.service.StudentService;
 import com.studentsystemapp.service.TeacherService;
-import jakarta.transaction.Transactional;
+import com.studentsystemapp.service.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.studentsystemapp.model.entity.Course;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/students")
@@ -20,13 +24,13 @@ public class StudentController {
 
 
     private final StudentService studentService;
-    private final CourseService courseService;
     private final TeacherService teacherService;
+    private final UserService userService;
 
-    public StudentController(StudentService studentService, CourseService courseService, TeacherService teacherService) {
+    public StudentController(StudentService studentService, TeacherService teacherService, UserService userService) {
         this.studentService = studentService;
-        this.courseService = courseService;
         this.teacherService = teacherService;
+        this.userService = userService;
     }
 
     @GetMapping("/add")
@@ -53,7 +57,7 @@ public class StudentController {
     @GetMapping("")
     public String allStudents(Model model) {
 
-        List<BaseUser> students = studentService.getAll();
+        List<BaseUser> students = studentService.getAllStudents();
         List<BaseUser> teachers = teacherService.getAll();
         model.addAttribute("students", students);
         model.addAttribute("teachers", teachers);
@@ -66,9 +70,9 @@ public class StudentController {
 
         StudentViewModel student = studentService.getById(id);
 
-        List<Course> courses = student.getCourses();
+        List<CourseViewModel> courses = student.getEnrollments().stream()
+                .map(EnrollmentViewModel::getCourse).collect(Collectors.toList());
 
-        if (student == null) return "all-students";
 
         model.addAttribute("student", student);
         model.addAttribute("courses", courses);
@@ -78,7 +82,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}/make-teacher")
-    public String makeTeacher(@PathVariable("id") Long id, Model model) {
+    public String makeTeacher(@PathVariable("id") Long id) {
 
         studentService.makeTeacher(id);
 
@@ -86,6 +90,19 @@ public class StudentController {
         return "redirect:/students";
     }
 
+    @PostMapping("/{studentId}/upload-picture")
+    public String handlePictureUpload(@PathVariable("studentId") Long studentId, @RequestParam("solutionFile") MultipartFile file, Model model) {
+        try {
+
+            studentService.uploadPicture(file, studentId);
+
+            model.addAttribute("message", "File uploaded successfully.");
+        } catch (IOException e) {
+            model.addAttribute("message", "File upload failed.");
+        }
+
+        return "redirect:/home";
+    }
 
 
 
@@ -96,6 +113,8 @@ public class StudentController {
 
 
         model.addAttribute("student", student);
+        model.addAttribute("viewerId", userService.getByUsername(SecurityContextHolder.getContext()
+                .getAuthentication().getName()).getId());
 
 
         return "student-view";

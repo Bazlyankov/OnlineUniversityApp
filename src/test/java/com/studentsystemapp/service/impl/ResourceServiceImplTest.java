@@ -10,6 +10,10 @@ import com.studentsystemapp.repo.CourseRepository;
 import com.studentsystemapp.repo.EnrollmentRepository;
 import com.studentsystemapp.repo.TaskRepository;
 import com.studentsystemapp.repo.UserRepository;
+import com.studentsystemapp.service.CourseService;
+import com.studentsystemapp.service.EnrollmentService;
+import com.studentsystemapp.service.TaskService;
+import com.studentsystemapp.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,22 +31,20 @@ class ResourceServiceImplTest {
     @Autowired
     private ResourceServiceImpl resourceService;
     @Autowired
-    private CourseServiceImpl courseService;
-    @Autowired
     private StudentServiceImpl studentService;
     @Autowired
-    private CourseRepository courseRepository;
+    private CourseService courseService;
     @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    private EnrollmentService enrollmentService;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
-    private TaskRepository taskRepository;
+    private TaskService taskService;
 
     private CourseAddBindingModel courseAddBindingModel;
     private CourseResourceAddBindingModel courseResourceAddBindingModel;
     private Course course;
-    private BaseUser teacher;
+    private StudentRegisterBindingModel teacher;
     private StudentRegisterBindingModel studentRegisterBindingModel;
     private BaseUser student;
 
@@ -52,15 +54,14 @@ class ResourceServiceImplTest {
 
 
 
-        teacher = new BaseUser();
+        teacher = new StudentRegisterBindingModel();
 
         teacher.setFirstName("Daskal");
         teacher.setLastName("Daskalov");
         teacher.setPassword("password");
         teacher.setUsername("teacher");
         teacher.setEmail("teacher@mail.com");
-        teacher.setEnrollments(new HashSet<>());
-        teacher.setRole(UserRolesEnum.TEACHER);
+        teacher.setConfirmPassword("password");
 
 
         studentRegisterBindingModel = new StudentRegisterBindingModel();
@@ -85,7 +86,8 @@ class ResourceServiceImplTest {
         courseResourceAddBindingModel.setDescription("description");
         courseResourceAddBindingModel.setVideoUrl("url");
 
-        userRepository.save(teacher);
+        studentService.add(teacher);
+        studentService.makeTeacher(studentService.getByUsername("teacher").getId());
 
         courseService.add(courseAddBindingModel);
         studentService.add(studentRegisterBindingModel);
@@ -103,11 +105,11 @@ class ResourceServiceImplTest {
     @Transactional
     public void tearDown() {
 
-        taskRepository.deleteAll();
-
-        enrollmentRepository.deleteAll();
-        userRepository.deleteAll();
-        courseRepository.deleteAll();
+        taskService.deleteAll();
+        enrollmentService.deleteAll();
+        userService.deleteAll();
+        courseService.deleteAll();
+        studentService.deleteAll();
     }
 
     @Test

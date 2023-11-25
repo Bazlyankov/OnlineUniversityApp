@@ -1,6 +1,9 @@
 package com.studentsystemapp.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,10 +17,11 @@ import java.io.File;
 @Table(name = "tasks")
 public class Task extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Course course;
 
     @Column
+    @Size(min = 3, max = 100)
     private String description;
 
     @OneToOne

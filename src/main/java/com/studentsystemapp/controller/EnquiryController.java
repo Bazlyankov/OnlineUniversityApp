@@ -3,10 +3,14 @@ package com.studentsystemapp.controller;
 import com.studentsystemapp.model.binding.EnquiryAddBindingModel;
 import com.studentsystemapp.model.view.EnquiryViewModel;
 import com.studentsystemapp.service.EnquiryService;
+import jakarta.validation.Valid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/enquiries")
@@ -34,14 +38,25 @@ public class EnquiryController {
     }
 
     @PostMapping("/{id}/add")
-    public String addEnquiryPost(@PathVariable("id") Long id, @ModelAttribute("enquiryAddBindingModel") EnquiryAddBindingModel enquiryAddBindingModel) {
-
-
-        ModelAndView modelAndView = new ModelAndView("enquiry-add");
+    public ModelAndView addEnquiryPost(@PathVariable("id") Long id,
+                                 @Valid @ModelAttribute("enquiryAddBindingModel") EnquiryAddBindingModel enquiryAddBindingModel,
+                                 BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/home");
+        modelAndView.addObject("studentId", id);
+        if (bindingResult.hasErrors()) {
+            modelAndView.addObject("hasErrors", true);
+            modelAndView.setViewName("enquiry-add");
+            return modelAndView;
+        }
         enquiryAddBindingModel.setStudentId(id);
-        enquiryService.add(enquiryAddBindingModel);
+        try {
+            enquiryService.add(enquiryAddBindingModel);
+        } catch (NoSuchElementException e) {
+            modelAndView.addObject("invalidInput", "Teacher with the provided id is not found");
+            modelAndView.setViewName("enquiry-add");
+        }
 
-        return "redirect:/home";
+        return modelAndView;
 
     }
 
@@ -62,7 +77,6 @@ public class EnquiryController {
     public ModelAndView addResponsePost(@PathVariable("id") Long id, @ModelAttribute("enquiry") EnquiryViewModel enquiry) {
 
         enquiryService.addResponse(enquiry.getResponse(), id);
-
         return new ModelAndView("redirect:/home");
 
     }

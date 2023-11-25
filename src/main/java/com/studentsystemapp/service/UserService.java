@@ -14,4 +14,6 @@ public interface UserService {
     boolean register(UserRegisterBindingModel userRegisterBindingModel);
 
     BaseUser getByUsername(String username);
+
+    void deleteAll();
 }

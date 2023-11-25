@@ -25,4 +25,8 @@ public interface StudentService {
     void makeTeacher(Long id);
 
     void uploadPicture(MultipartFile file, Long studentId) throws IOException;
+
+    void deleteAll();
+
+    BaseUser getByUsername(String username);
 }

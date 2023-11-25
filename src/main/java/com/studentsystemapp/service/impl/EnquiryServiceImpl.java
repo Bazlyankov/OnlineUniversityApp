@@ -3,6 +3,7 @@ package com.studentsystemapp.service.impl;
 import com.studentsystemapp.model.binding.EnquiryAddBindingModel;
 import com.studentsystemapp.model.entity.BaseUser;
 import com.studentsystemapp.model.entity.Enquiry;
+import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.model.view.EnquiryViewModel;
 import com.studentsystemapp.repo.EnquiryRepository;
 import com.studentsystemapp.repo.UserRepository;
@@ -36,7 +37,7 @@ public class EnquiryServiceImpl implements EnquiryService {
         Optional<BaseUser> optionalTeacher = userRepository.findById(enquiryAddBindingModel.getTeacherId());
         Optional<BaseUser> optionalStudent = userRepository.findById(enquiryAddBindingModel.getStudentId());
 
-        if (optionalTeacher.isEmpty() || optionalStudent.isEmpty()) {
+        if (optionalTeacher.isEmpty() || optionalStudent.isEmpty() || optionalTeacher.get().getRole().equals(UserRolesEnum.STUDENT)) {
             throw new NoSuchElementException();
         }
 
@@ -97,6 +98,12 @@ public class EnquiryServiceImpl implements EnquiryService {
         }
 
         return modelMapper.map(optionalEnquiry.get(), EnquiryViewModel.class);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAll() {
+        enquiryRepository.deleteAll();
     }
 
 

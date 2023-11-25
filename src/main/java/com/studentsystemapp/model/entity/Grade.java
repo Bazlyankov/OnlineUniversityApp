@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Entity
 public class Grade extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private BaseUser student;
 
     @Column

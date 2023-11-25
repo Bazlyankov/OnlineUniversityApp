@@ -56,7 +56,6 @@ public class CourseServiceImpl implements CourseService {
             throw new NoSuchElementException();
         }
 
-
         Hibernate.initialize(courseRepository);
         CourseViewModel course = modelMapper.map(optionalCourse.get(), CourseViewModel.class);
 
@@ -227,6 +226,11 @@ public class CourseServiceImpl implements CourseService {
         ).collect(Collectors.toSet());
     }
 
+    @Override
+    @Transactional
+    public void deleteAll() {
+        courseRepository.deleteAll();
+    }
 
 
     @Override

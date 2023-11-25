@@ -1,0 +1,121 @@
+.w-15 {
+    width: 15%;
+}
+
+.bg-gray {
+    background-color: #e9ecef;
+}
+
+.bg-nav{
+    background-color: rgba(0, 0, 0, 27%);
+}
+
+
+body {
+    background-image: url(/images/lecture_hall.jpg);
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    margin-bottom: 5rem;
+}
+
+textarea {
+    resize: none;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.img-thumb {
+    padding: .25rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: .25rem;
+    max-width: 100%;
+}
+
+.bg-blur {
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.8); /* Black w/opacity/see-through */
+    color: white;
+    font-weight: bold;
+    border: 3px solid #f1f1f1;
+    z-index: 2;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+}
+
+.mySticky {
+    position: sticky;
+    left: 0;
+}
+
+.container{
+    width: 90%;
+}
+
+.text-stroke{
+    text-shadow:
+            0.07em 0 white,
+            0 0.07em white,
+            -0.07em 0 white,
+            0 -0.07em white;
+}
+
+.my-text-color{
+    color: white!important;
+}
+
+#big-div{
+}
+
+.badge-secondary{
+    background-color: #720a75;
+}
+
+.text-danger1 {
+    padding-top: 0;
+    padding-bottom: 20px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.completed-label {
+    color: green;
+}
+
+.incomplete-label {
+    color: red;
+}
+
+.resource-div {
+    margin: 100px 20px;
+}
+
+.resource-title {
+    font-size: larger;
+}
+
+.tasks-row {
+    margin-top: 100px;
+    margin-bottom: 100px;
+}
+.profile-picture {
+    width: 200px; /* Set width as needed */
+    height: auto; /* Auto adjust height according to aspect ratio */
+}
+
+.picture-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.picture-form .btn {
+    margin-top: 10px; /* Adjust this value as needed */
+}

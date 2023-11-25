@@ -3,15 +3,14 @@ package com.studentsystemapp.service.impl;
 import com.studentsystemapp.model.binding.CourseAddBindingModel;
 import com.studentsystemapp.model.binding.CourseResourceAddBindingModel;
 import com.studentsystemapp.model.binding.StudentRegisterBindingModel;
-import com.studentsystemapp.model.entity.BaseUser;
-import com.studentsystemapp.model.entity.Course;
-import com.studentsystemapp.model.entity.Grade;
-import com.studentsystemapp.model.entity.Student;
+import com.studentsystemapp.model.entity.*;
 import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.repo.CourseRepository;
 import com.studentsystemapp.repo.EnrollmentRepository;
 import com.studentsystemapp.repo.TaskRepository;
 import com.studentsystemapp.repo.UserRepository;
+import com.studentsystemapp.service.EnrollmentService;
+import com.studentsystemapp.service.TaskService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,21 +31,17 @@ class StudentServiceImplTest {
     private StudentServiceImpl studentService;
     @Autowired
     private CourseServiceImpl courseService;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TaskRepository taskRepository;
-
     private CourseAddBindingModel courseAddBindingModel;
     private CourseResourceAddBindingModel courseResourceAddBindingModel;
     private Course course;
-    private BaseUser teacher;
+    private StudentRegisterBindingModel teacher;
     private StudentRegisterBindingModel studentRegisterBindingModel;
     private BaseUser student;
+    @Autowired
+    private EnrollmentService enrollmentService;
+    @Autowired
+    private TaskService taskService;
+
 
     @BeforeEach
     @Transactional
@@ -55,15 +49,14 @@ class StudentServiceImplTest {
 
 
 
-        teacher = new BaseUser();
+        teacher = new StudentRegisterBindingModel();
 
         teacher.setFirstName("Daskal");
         teacher.setLastName("Daskalov");
         teacher.setPassword("password");
+        teacher.setConfirmPassword("password");
         teacher.setUsername("teacher");
         teacher.setEmail("teacher@mail.com");
-        teacher.setEnrollments(new HashSet<>());
-        teacher.setRole(UserRolesEnum.TEACHER);
 
 
         studentRegisterBindingModel = new StudentRegisterBindingModel();
@@ -88,8 +81,8 @@ class StudentServiceImplTest {
         courseResourceAddBindingModel.setDescription("description");
         courseResourceAddBindingModel.setVideoUrl("url");
 
-        userRepository.save(teacher);
-
+        studentService.add(teacher);
+        studentService.makeTeacher(studentService.getByUsername("teacher").getId());
         courseService.add(courseAddBindingModel);
 
 
@@ -102,11 +95,11 @@ class StudentServiceImplTest {
     @Transactional
     public void tearDown() {
 
-        taskRepository.deleteAll();
+        taskService.deleteAll();
 
-        enrollmentRepository.deleteAll();
-        userRepository.deleteAll();
-        courseRepository.deleteAll();
+        enrollmentService.deleteAll();
+        studentService.deleteAll();
+        courseService.deleteAll();
     }
 
     @Test
@@ -126,8 +119,10 @@ class StudentServiceImplTest {
     void remove() {
 
         studentService.add(studentRegisterBindingModel);
+
+        assertEquals(1, studentService.getAllStudents().size());
         studentService.remove("student");
-        assertEquals(1, userRepository.findAll().size());
+        assertEquals(0, studentService.getAllStudents().size());
     }
 
 
@@ -191,7 +186,7 @@ class StudentServiceImplTest {
 
 
         studentService.add(studentRegisterBindingModel);
-        Long id = studentService.getAllStudents().get(0).getId();
+        Long id = studentService.getByUsername(studentRegisterBindingModel.getUsername()).getId();
         assertEquals("student",studentService.getById(id).getUsername());
 
     }
@@ -209,4 +204,15 @@ class StudentServiceImplTest {
 
 
     }
+
+    @Test
+    @Transactional
+    void uploadPictureNoUses() throws IOException {
+
+        assertThrows(NoSuchElementException.class, () -> studentService.uploadPicture(null, 2L));
+
+    }
+
+
+
 }

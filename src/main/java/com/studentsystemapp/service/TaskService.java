@@ -23,4 +23,6 @@ public interface TaskService {
     void setGradeById(Long taskId, BigDecimal gradeValue, Long studentId);
 
     Set<TaskViewModel> getTasksByUsername(String username);
+
+    void deleteAll();
 }

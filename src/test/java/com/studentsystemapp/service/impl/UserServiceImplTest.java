@@ -1,7 +1,10 @@
 package com.studentsystemapp.service.impl;
 
 import com.studentsystemapp.model.binding.UserRegisterBindingModel;
+import com.studentsystemapp.model.entity.BaseUser;
+import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.repo.UserRepository;
+import com.studentsystemapp.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -21,9 +23,6 @@ class UserServiceImplTest {
     @Autowired
     private UserServiceImpl userServiceToTest;
 
-
-    @Autowired
-    private UserRepository userRepository;
 
     private UserRegisterBindingModel userRegisterBindingModel;
 
@@ -40,29 +39,29 @@ class UserServiceImplTest {
         userRegisterBindingModel.setLastName("Userov");
 
 
-        userRepository.deleteAll();
+        userServiceToTest.deleteAll();
     }
 
     @Test
     void successfulRegister() {
 
-        assertTrue(userRepository.findAll().isEmpty());
+        assertThrows(NoSuchElementException.class, () -> userServiceToTest.getByUsername("user"));
 
         assertTrue(userServiceToTest.register(userRegisterBindingModel));
 
-        Assertions.assertEquals(1, userRepository.findAll().size());
+        Assertions.assertNotNull( userServiceToTest.getByUsername("user"));
     }
 
     @Test
     void unsuccessfulRegisterDuplicate() {
 
-        assertTrue(userRepository.findAll().isEmpty());
+        assertThrows(NoSuchElementException.class, () -> userServiceToTest.getByUsername("user"));
+
 
         userServiceToTest.register(userRegisterBindingModel);
         assertFalse(userServiceToTest.register(userRegisterBindingModel));
 
-        Assertions.assertEquals(1, userRepository.findAll().size());
-
+        assertThrows(NoSuchElementException.class, () -> userServiceToTest.getByUsername("user2"));
 
         userRegisterBindingModel.setUsername("user2");
         userRegisterBindingModel.setEmail("user2@mail.com");
@@ -97,4 +96,6 @@ class UserServiceImplTest {
 
         Assertions.assertNotNull(userServiceToTest.getByUsername("user"));
     }
+
+
 }

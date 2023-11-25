@@ -55,6 +55,7 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("enquiries", enquiries);
         model.addAttribute("enrollments", enrollments);
+        model.addAttribute("userId", userService.getByUsername(authentication.getName()).getId());
 
         return "home";
     }

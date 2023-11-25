@@ -15,6 +15,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/courses")
@@ -52,34 +55,42 @@ public class CourseController {
     }
 
     @PostMapping("/add")
-    public String addCourse(@ModelAttribute("course") @Valid CourseAddBindingModel courseAddBindingModel,
-                            BindingResult bindingResult) {
+    public ModelAndView addCourse(@ModelAttribute("course") @Valid CourseAddBindingModel courseAddBindingModel,
+                                  BindingResult bindingResult) {
 
+        ModelAndView modelAndView = new ModelAndView("redirect:/courses");
+        modelAndView.addObject("hasErrors", bindingResult.hasErrors());
         if (bindingResult.hasErrors()) {
-            //TODO: handle errors
+            modelAndView.setViewName("course-add");
+            return modelAndView;
         }
 
         courseAddBindingModel.setTeacherUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         courseService.add(courseAddBindingModel);
 
-        return "redirect:/home";
+        return modelAndView;
 
     }
 
     @GetMapping("/{courseId}/add")
     public String addStudentToCourse(@PathVariable("courseId") Long id) {
 
-
         return "add-student-to-course";
 
     }
 
     @PostMapping("/{courseId}/add")
-    public String addStudentToCoursePost(@PathVariable("courseId") Long id, @RequestParam String studentInput) {
+    public ModelAndView addStudentToCoursePost(Model model, @PathVariable("courseId") Long id, @RequestParam String studentInput) {
 
-        courseService.addStudent(id, studentInput);
+        ModelAndView modelAndView = new ModelAndView("redirect:/courses/{courseId}");
+        try {
+            courseService.addStudent(id, studentInput);
+        } catch (NoSuchElementException e) {
+            model.addAttribute("errorMessage", "No student with this username exists.");
+            modelAndView.setViewName("add-student-to-course");
+        }
 
-        return "redirect:/courses/{courseId}";
+        return modelAndView;
 
     }
 
@@ -88,7 +99,6 @@ public class CourseController {
                                           @PathVariable("studentId") Long studentId) {
 
         courseService.remove(courseId, studentId);
-
         return "redirect:/courses/{courseId}";
 
     }
@@ -96,13 +106,12 @@ public class CourseController {
     @Transactional
     @GetMapping("/{id}")
     public String seeUsers(@PathVariable("id") Long id, Model model) {
+        CourseViewModel course;
+        try {
 
-        CourseViewModel course = courseService.getCourseById(id);
-
-        if (course == null) {
-            //TODO: handle error
-            return "redirect:/";
-
+            course = courseService.getCourseById(id);
+        } catch (NoSuchElementException e) {
+            return "redirect:/error";
         }
 
 
@@ -128,21 +137,24 @@ public class CourseController {
     }
 
     @PostMapping("/{id}/resources/add")
-    public String addResource(@PathVariable("id") Long id, @ModelAttribute("resource") @Valid CourseResourceAddBindingModel resourceAddBindingModel,
+    public ModelAndView addResource(@PathVariable("id") Long id, @ModelAttribute("resource") @Valid CourseResourceAddBindingModel resourceAddBindingModel,
                               BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/resources/{id}");
+        if (bindingResult.hasErrors()) {
+            modelAndView.setViewName("resource-add");
+            modelAndView.addObject("hasErrors", true);
+            return modelAndView;
+        }
 
-
-        CourseViewModel course = courseService.getCourseById(id);
-
-        if (course == null) {
-            //TODO: handle error
-            return "redirect:/";
+        try {
+            resourceService.add(id, resourceAddBindingModel);
+        } catch (NoSuchElementException e) {
+            modelAndView.addObject("invalidId", "Please enter a valid course id");
+            modelAndView.setViewName("resource-add");
 
         }
 
-        resourceService.add(id, resourceAddBindingModel);
-
-        return "redirect:/resources/{id}";
+        return modelAndView;
     }
 
 }

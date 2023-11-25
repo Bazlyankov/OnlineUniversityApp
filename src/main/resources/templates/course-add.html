@@ -20,7 +20,12 @@
     <div class="text-center">
       <input type="text" th:field = "*{name}"
              placeholder="Enter course name"
-             class="form-control mb-4 col-12 mx-auto ">
+             class="form-control mb-4 col-12 mx-auto "
+             th:errorclass="bg-danger">
+
+      <small th:if="${#fields.hasErrors('name')}"
+             th:errors="*{name}"
+             class="text-danger">Username error message</small>
     </div>
 
     <div class="label-holder textCol d-flex justify-content-center">
@@ -30,7 +35,11 @@
 
       <input type="text"  th:field = "*{description}"
              placeholder="Enter course description"
-             class="form-control mb-4 col-16  mx-auto ">
+             class="form-control mb-4 col-16  mx-auto "
+             th:errorclass="bg-danger">
+      <small th:if="${#fields.hasErrors('description')}"
+             th:errors="*{description}"
+             class="text-danger" >Username error message</small>
     </div>
 
 

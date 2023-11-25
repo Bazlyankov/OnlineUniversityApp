@@ -15,10 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.NotActiveException;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +37,6 @@ public class StudentServiceImpl implements StudentService {
         return userRepository.deleteByUsername(username);
     }
 
-
-
     @Override
     @Transactional
     public boolean add(StudentRegisterBindingModel studentRegisterBindingModel) {
@@ -57,10 +52,8 @@ public class StudentServiceImpl implements StudentService {
         baseUser.setRole(UserRolesEnum.STUDENT);
 
         userRepository.save(baseUser);
-
         return true;
     }
-
     @Override
     public List<BaseUser> getAllStudents() {
         return userRepository.findAll()
@@ -68,7 +61,6 @@ public class StudentServiceImpl implements StudentService {
                 .filter(u -> u.getRole() == UserRolesEnum.STUDENT)
                 .collect(Collectors.toList());
     }
-
     @Override
     public List<BaseUser> getAllByCourse(Course course) {
         return userRepository.findAll().stream()
@@ -77,54 +69,52 @@ public class StudentServiceImpl implements StudentService {
                         .size() > 0).collect(Collectors.toList());
     }
 
-
-
     @Override
     public StudentViewModel getById(Long id) {
         Optional<BaseUser> optionalStudent = userRepository.findById(id);
-
         if (optionalStudent.isEmpty()) {
             throw new NoSuchElementException();
         }
-
         return modelMapper.map(optionalStudent.get(), StudentViewModel.class);
     }
-
     @Override
     @Transactional
     public void makeTeacher(Long id) {
-
         Optional<BaseUser> optionalStudent = userRepository.findById(id);
-
         if (optionalStudent.isEmpty()) return;
-
         BaseUser student = optionalStudent.get();
         student.setRole(UserRolesEnum.TEACHER);
         userRepository.saveAndFlush(student);
-
     }
-
     @Override
     @Transactional
     public void uploadPicture(MultipartFile file, Long studentId) throws IOException {
 
-
-            Map<?, ?> cloudinaryResponse = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "public_id", "Student" + studentId + "profilePic.jpg"
-                    ,"resource_type", "auto"));
-
             Optional<BaseUser> optionalBaseUser = userRepository.findById(studentId);
             if (optionalBaseUser.isEmpty()) {
-                throw  new NotActiveException();
+                throw  new NoSuchElementException();
             }
+        Map<?, ?> cloudinaryResponse = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                "public_id", "Student" + studentId + "profilePic.jpg"
+                ,"resource_type", "auto"));
 
             BaseUser user = optionalBaseUser.get();
 
             user.setProfilePicURL((String) cloudinaryResponse.get("url"));
             userRepository.saveAndFlush(user);
 
-
     }
 
 
+    @Override
+    @Transactional
+    public void deleteAll() {
+        userRepository.findAll().forEach(u -> u.setEnrollments(new HashSet<>()));
+        userRepository.saveAllAndFlush(userRepository.findAll());
+        userRepository.deleteAll();
+    }
+    @Override
+    public BaseUser getByUsername(String username) {
+        return userRepository.findByUsername(username).get();
+    }
 }

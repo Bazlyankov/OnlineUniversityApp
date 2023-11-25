@@ -151,4 +151,10 @@ public class TaskServiceImpl implements TaskService {
                 .stream().map(t -> modelMapper.map(t, TaskViewModel.class))
                 .collect(Collectors.toSet());
     }
+
+    @Override
+    @Transactional
+    public void deleteAll() {
+        taskRepository.deleteAll();
+    }
 }

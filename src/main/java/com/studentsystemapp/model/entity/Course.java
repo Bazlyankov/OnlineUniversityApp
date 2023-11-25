@@ -3,6 +3,9 @@ package com.studentsystemapp.model.entity;
 
 import com.studentsystemapp.model.enums.UserRolesEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +24,12 @@ import java.util.Set;
 public class Course extends BaseEntity {
 
     @Column
+    @Size(min = 3, max = 40)
     private String name;
 
+
     @Column
+    @Size(min = 3, max = 100)
     private String description;
 
 

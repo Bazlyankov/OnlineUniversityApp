@@ -20,7 +20,11 @@
     <div class="form-group">
 
         <form th:action="@{/courses/{courseId}/add(courseId=${courseId})}" th:method="post" class="mx-auto w-25 bg-blur rounded">
+
             <div class="mb-3">
+                <p th:if="${errorMessage}" th:text="${errorMessage}" class="errors alert alert-danger">
+                    Invalid username or password.
+                </p>
                 <label for="studentInput" class="form-label">Student Username</label>
                 <input type="text" id="studentInput" name="studentInput" class="form-control" required="required" />
             </div>

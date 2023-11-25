@@ -39,4 +39,6 @@ public boolean remove(Long courseId, Long studentId);
     Optional<Course> findById(Long courseId);
 
     Set<EnrollmentViewModel> getEnrollmentsByUsername(String name);
+
+    void deleteAll();
 }

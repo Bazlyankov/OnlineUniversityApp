@@ -15,4 +15,6 @@ public interface EnquiryService {
     void addResponse(String response, Long enquiryId);
 
     EnquiryViewModel getById(Long id);
+
+    void deleteAll();
 }

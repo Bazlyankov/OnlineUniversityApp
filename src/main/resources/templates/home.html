@@ -146,6 +146,11 @@
         </tr>
         </tbody>
     </table>
+    <hr>
+    <div style="padding-bottom: 15px">
+        <a sec:authorize="hasRole('ROLE_STUDENT')" class="btn btn-primary"  th:href="@{/enquiries/{id}/add(id=${userId})}" >Add new enquiry</a>
+
+    </div>
 </div>
 
 

@@ -43,13 +43,13 @@ public class BaseUser extends BaseEntity {
     @Column(nullable = false)
     private UserRolesEnum role;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Enrollment> enrollments = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Task> tasks = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Grade> grades;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)

@@ -1,9 +1,6 @@
 package com.studentsystemapp.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,12 +17,12 @@ import java.util.Objects;
 @Setter
 public class Enrollment extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn( name = "course_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
     //add updatable = false, to run tests
     private Course course;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn( name = "user_id")
     //add updatable = false, to run tests
     private BaseUser user;

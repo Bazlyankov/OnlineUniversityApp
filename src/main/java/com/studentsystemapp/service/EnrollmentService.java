@@ -1,2 +1,6 @@
-package com.studentsystemapp.service;public class EnrollmentService {
+package com.studentsystemapp.service;
+
+public interface EnrollmentService {
+
+    public void deleteAll();
 }

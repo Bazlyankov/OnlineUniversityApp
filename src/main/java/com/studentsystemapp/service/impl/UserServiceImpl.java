@@ -5,6 +5,7 @@ import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.repo.UserRepository;
 import com.studentsystemapp.model.binding.UserRegisterBindingModel;
 import com.studentsystemapp.service.UserService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,12 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.getByUsername(username).get();
 
+    }
+
+    @Override
+    @Transactional
+    public void deleteAll() {
+        userRepository.deleteAll();
     }
 
 

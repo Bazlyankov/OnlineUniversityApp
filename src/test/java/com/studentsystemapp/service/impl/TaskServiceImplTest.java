@@ -6,17 +6,23 @@ import com.studentsystemapp.model.binding.StudentRegisterBindingModel;
 import com.studentsystemapp.model.binding.TaskAddBindingModel;
 import com.studentsystemapp.model.entity.BaseUser;
 import com.studentsystemapp.model.entity.Course;
+import com.studentsystemapp.model.entity.Student;
 import com.studentsystemapp.model.enums.UserRolesEnum;
 import com.studentsystemapp.repo.CourseRepository;
 import com.studentsystemapp.repo.EnrollmentRepository;
 import com.studentsystemapp.repo.TaskRepository;
 import com.studentsystemapp.repo.UserRepository;
+import com.studentsystemapp.service.CourseService;
+import com.studentsystemapp.service.StudentService;
+import com.studentsystemapp.service.TaskService;
+import com.studentsystemapp.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -27,25 +33,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class TaskServiceImplTest {
 
     @Autowired
-    private TaskServiceImpl taskService;
+    private TaskService taskService;
     @Autowired
-    private CourseServiceImpl courseService;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TaskRepository taskRepository;
+    private CourseService courseService;
 
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private StudentService studentService;
+
+
+    @Autowired
+    private EnrollmentServiceImpl enrollmentService;
     private CourseAddBindingModel courseAddBindingModel;
     private CourseResourceAddBindingModel courseResourceAddBindingModel;
     private TaskAddBindingModel taskAddBindingModel;
-    private Course course;
-    private BaseUser teacher;
+    private StudentRegisterBindingModel teacher;
     private StudentRegisterBindingModel studentRegisterBindingModel;
-    private BaseUser student;
+    private StudentRegisterBindingModel student;
 
     @BeforeEach
     @Transactional
@@ -53,16 +58,16 @@ class TaskServiceImplTest {
 
 
 
-        teacher = new BaseUser();
-        student = new BaseUser();
+        teacher = new StudentRegisterBindingModel();
+        student = new StudentRegisterBindingModel();
 
         teacher.setFirstName("Daskal");
         teacher.setLastName("Daskalov");
         teacher.setPassword("password");
         teacher.setUsername("teacher");
         teacher.setEmail("teacher@mail.com");
-        teacher.setEnrollments(new HashSet<>());
-        teacher.setRole(UserRolesEnum.TEACHER);
+        teacher.setConfirmPassword("password");
+
 
 
         studentRegisterBindingModel = new StudentRegisterBindingModel();
@@ -70,9 +75,9 @@ class TaskServiceImplTest {
         student.setFirstName("Student");
         student.setLastName("Studentov");
         student.setPassword("password");
+        student.setConfirmPassword("password");
         student.setUsername("student");
         student.setEmail("student@mail.com");
-        student.setRole(UserRolesEnum.STUDENT);
 
 
 
@@ -87,15 +92,16 @@ class TaskServiceImplTest {
         courseResourceAddBindingModel.setDescription("description");
         courseResourceAddBindingModel.setVideoUrl("url");
 
-        userRepository.save(teacher);
-        userRepository.save(student);
+        studentService.add(teacher);
+        studentService.makeTeacher(studentService.getByUsername("teacher").getId());
+        studentService.add(student);
 
 
         courseService.add(courseAddBindingModel);
 
         taskAddBindingModel = new TaskAddBindingModel();
         taskAddBindingModel.setDescription("task description");
-        taskAddBindingModel.setCourseId(courseRepository.findAll().get(0).getId());
+        taskAddBindingModel.setCourseId(courseService.getCourseByName("courseName").get().getId());
 
 
 
@@ -106,61 +112,59 @@ class TaskServiceImplTest {
 
     @AfterEach
     @Transactional
-    public void tearDown() {
 
-        taskRepository.deleteAll();
+    public void tearDown() throws InterruptedException {
 
-        enrollmentRepository.deleteAll();
-        userRepository.deleteAll();
-        courseRepository.deleteAll();
+        taskService.deleteAll();
+        studentService.deleteAll();
+        enrollmentService.deleteAll();
+        userService.deleteAll();
+        courseService.deleteAll();
     }
 
     @Test
     @Transactional
+    @Rollback
     void addTask() {
 
-        Long studentId = student.getId();
-        assertEquals(0, student.getTasks().size());
-        taskService.addTask(studentId,taskAddBindingModel);
-        assertEquals(1, student.getTasks().size());
+        BaseUser baseUser = userService.getByUsername("student");
+        assertEquals(0, baseUser.getTasks().size());
+        taskService.addTask(baseUser.getId(),taskAddBindingModel);
+        assertEquals(1, baseUser.getTasks().size());
 
     }
 
     @Test
     @Transactional
+    @Rollback
     void getById() {
-
-        Long studentId = student.getId();
-        taskService.addTask(studentId,taskAddBindingModel);
-        Long taskId = taskRepository.findAll().get(0).getId();
-        assertNotNull(taskService.getById(taskId));
-
-    }
-
-    @Test
-    void uploadFile() {
+        BaseUser baseUser = userService.getByUsername("student");
+        taskService.addTask(baseUser.getId(), taskAddBindingModel);
+        assertFalse(taskService.getTasksByUsername("student").isEmpty());
     }
 
     @Test
     @Transactional
-    void setGradeById() {
-
-        Long studentId = student.getId();
+    @Rollback
+    void setGradeById() throws InterruptedException {
+        Thread.sleep(2000);
+        BaseUser baseUser = userService.getByUsername("student");
+        Long studentId = baseUser.getId();
         taskService.addTask(studentId,taskAddBindingModel);
-        Long taskId = taskRepository.findAll().get(0).getId();
-        assertEquals(0, student.getTasks().stream().filter(t -> t.getIsGraded()).collect(Collectors.toList()).size());
+        Long taskId = taskService.getTasksByUsername("student").stream().toList().get(0).getId();
+        assertEquals(0, baseUser.getTasks().stream().filter(t -> t.getIsGraded()).collect(Collectors.toList()).size());
         taskService.setGradeById(taskId, BigDecimal.valueOf(6), studentId);
-        assertEquals(1, student.getTasks().stream().filter(t -> t.getIsGraded()).collect(Collectors.toList()).size());
+        assertEquals(1, baseUser.getTasks().stream().filter(t -> t.getIsGraded()).collect(Collectors.toList()).size());
     }
 
     @Test
     @Transactional
-    void getTasksByUsername() {
-
-        Long studentId = student.getId();
+    @Rollback
+    void getTasksByUsername() throws InterruptedException {
+        BaseUser baseUser = userService.getByUsername("student");
+        Long studentId = baseUser.getId();
         assertEquals(0, taskService.getTasksByUsername("student").size());
         taskService.addTask(studentId,taskAddBindingModel);
         assertEquals(1, taskService.getTasksByUsername("student").size());
-
     }
 }

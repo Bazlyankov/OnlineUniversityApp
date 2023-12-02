@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <head th:replace="~{fragments/commons::head}">
   <title>Student Profile</title>
@@ -13,7 +14,8 @@
 
 
 
-<h1>Student Profile</h1>
+<h1 th:if="${student.role == T(com.studentsystemapp.model.enums.UserRolesEnum).STUDENT}">Student Profile</h1>
+<h1 th:if="${student.role == T(com.studentsystemapp.model.enums.UserRolesEnum).TEACHER}">Teacher Profile</h1>
 
 <div class="profile-info" align="center">
 
@@ -29,17 +31,42 @@
   <p th:text="'Username: ' + ${student.username}">Username: </p>
   <p th:text="'Email: ' + ${student.email}">Email: </p>
   <h3>Courses:</h3>
-  <ul>
-    <li th:each="enrollment : ${student.enrollments}" th:text="${enrollment.course.name}"></li>
-  </ul>
+  <div id="courseList">
+
+  </div>
+<!--  <ul>-->
+<!--    <li th:each="enrollment : ${student.enrollments}" th:text="${enrollment.course.name}"></li>-->
+<!--  </ul>-->
   <p sec:authorize="hasRole('ROLE_TEACHER')" th:if="${student.averageGrade} < 3 and ${student.isStudent()}" th:text="'Average grade: ' + ${student.averageGrade}" class="incomplete-label">Average Grade: </p>
   <p sec:authorize="hasRole('ROLE_TEACHER')" th:unless="${student.averageGrade} < 3 or ${!student.isStudent()}" th:text="'Average grade: ' + ${student.averageGrade}" class="completed-label">Average Grade: </p>
   <a  th:href="@{/students/{id}/courses(id=${student.id})}" class="task-button mb-3 mt-3">View Courses Full info</a>
   <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="@{/students/{id}/tasks(id=${student.id})}" class="task-button mb-3 mt-3">View Tasks</a>
+  <a sec:authorize="hasRole('ROLE_STUDENT')" th:if="${!student.isStudent()}" th:href="@{/enquiries/{viewerId}/add/{id}(id=${student.id}, viewerId=${viewerId})}" class="task-button mb-3 mt-3">Send an enquiry</a>
 </div>
-  <a sec:authorize="hasRole('ROLE_TEACHER')" th:if="${student.isStudent()}" style="color: white; background-color: red; border-color: red" th:href="@{/students/{id}/make-teacher(id=${student.id})}" class="btn btn-primary mb-3 mt-3">Make Teacher</a>
+  <a sec:authorize="hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')" th:if="${student.isStudent()}" style="color: white; background-color: red; border-color: red" th:href="@{/students/{id}/make-teacher(id=${student.id})}" class="btn btn-primary mb-3 mt-3">Make Teacher</a>
+  <a sec:authorize="hasRole('ROLE_ADMIN')" th:if="${!student.isStudent()}" style="color: white; background-color: red; border-color: red" th:href="@{/{id}/make-student(id=${student.id})}" class="btn btn-primary mb-3 mt-3">Demote to student</a>
 
 
 </div>
+<script th:inline="javascript">
+  let studentId = /*[[${student.id}]]*/
+
+  $(document).ready(function() {
+    console.log('Document ready!');
+    $.ajax({
+      url: "/api/courses/" + studentId,
+      type: "GET",
+      dataType: "json",
+      success: function(data) {
+        data.forEach(function(course) {
+          $('#courseList').append('<p>' + course.name + '</p>');
+        });
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+      }
+    });
+  });
+</script>
 </body>
 </html>

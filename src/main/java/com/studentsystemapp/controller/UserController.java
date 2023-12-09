@@ -1,87 +1,98 @@
 package com.studentsystemapp.controller;
 
-import com.studentsystemapp.model.binding.UserLoginBindingModel;
-import com.studentsystemapp.model.binding.UserRegisterBindingModel;
+import com.studentsystemapp.model.view.CourseViewModel;
+import com.studentsystemapp.model.view.EnrollmentViewModel;
+import com.studentsystemapp.model.view.UserViewModel;
+import com.studentsystemapp.service.StudentService;
+import com.studentsystemapp.service.TeacherService;
 import com.studentsystemapp.service.UserService;
-import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
-public class UserController {
+@RequestMapping("/students")
+public class StudentController {
 
+
+    private final StudentService studentService;
+    private final TeacherService teacherService;
     private final UserService userService;
-    public UserController(UserService userService) {
+
+    public StudentController(StudentService studentService, TeacherService teacherService, UserService userService) {
+        this.studentService = studentService;
+        this.teacherService = teacherService;
         this.userService = userService;
     }
 
-    @GetMapping("/login")
-    public ModelAndView showLoginForm(@ModelAttribute("userLoginBindingModel") UserLoginBindingModel userLoginBindingModel) {
-        return new ModelAndView("login");
+    @GetMapping("")
+    public String allStudents(Model model) {
+
+        List<UserViewModel> students = studentService.getAllStudents();
+        List<UserViewModel> teachers = teacherService.getAll();
+        model.addAttribute("students", students);
+        model.addAttribute("teachers", teachers);
+
+        return "all-users";
     }
 
+    @GetMapping("{id}/courses")
+    public String seeCourses(@PathVariable("id") Long id, Model model) {
 
-    @PostMapping("/login")
-    public ModelAndView postLogin(@ModelAttribute("userLoginBindingModel") @Valid UserLoginBindingModel userLoginBindingModel, BindingResult bindingResult) {
+        UserViewModel student = userService.getById(id);
 
-        if (bindingResult.hasErrors()) {
-            return new ModelAndView("login");
+        List<CourseViewModel> courses = student.getEnrollments().stream()
+                .map(EnrollmentViewModel::getCourse).collect(Collectors.toList());
+
+        model.addAttribute("student", student);
+        model.addAttribute("courses", courses);
+
+
+        return "user-courses";
+    }
+
+    @GetMapping("/{id}/make-teacher")
+    public String makeTeacher(@PathVariable("id") Long id) {
+
+        studentService.makeTeacher(id);
+        return "redirect:/students";
+    }
+
+    @PostMapping("/{id}/upload-picture")
+    @PreAuthorize("@securityService.hasUserId(authentication, #id)")
+    public String handlePictureUpload(@PathVariable("id") Long id, @RequestParam("solutionFile") MultipartFile file, Model model) {
+        try {
+            userService.uploadPicture(file, id);
+            model.addAttribute("message", "File uploaded successfully.");
+        } catch (IOException e) {
+            model.addAttribute("message", "File upload failed.");
         }
 
-        return new ModelAndView("redirect:/");
-    }
-
-    @PostMapping("/login-error")
-    public ModelAndView onFailure(@ModelAttribute("userLoginBindingModel") UserLoginBindingModel userLoginBindingModel,
-            BindingResult bindingResult,
-            Model model) {
-
-        model.addAttribute("username", userLoginBindingModel.getUsername());
-        model.addAttribute("bad_credentials", "true");
-
-        return new ModelAndView("login");
+        return "redirect:/students/" + id;
     }
 
 
 
+    @GetMapping("/{id}")
+    public String seeStudent(@PathVariable("id") Long id, Model model) {
 
-    @GetMapping("/register")
-    public ModelAndView register(@ModelAttribute("userRegisterBindingModel") UserRegisterBindingModel userRegisterBindingModel) {
+        UserViewModel student = userService.getById(id);
 
-        return new ModelAndView("register");
+
+        model.addAttribute("student", student);
+        model.addAttribute("viewerId", userService.getByUsername(SecurityContextHolder.getContext()
+                .getAuthentication().getName()).getId());
+        model.addAttribute("viewerUsername", SecurityContextHolder.getContext()
+                .getAuthentication().getName());
+
+        return "user-view";
     }
-
-
-    @PostMapping("/register")
-    public ModelAndView register(@ModelAttribute("userRegisterBindingModel") @Valid UserRegisterBindingModel userRegisterBindingModel,
-                                 BindingResult bindingResult) {
-
-
-        boolean hasErrors = bindingResult.hasErrors();
-
-
-        if(!hasErrors) {
-            boolean register = userService.register(userRegisterBindingModel);
-
-
-            return new ModelAndView("redirect:/login");
-        }
-
-        return new ModelAndView("register");
-
-    }
-
-    @GetMapping("/logout")
-    public ModelAndView logout() {
-
-        return new ModelAndView("redirect:/");
-    }
-
-
 
 }
